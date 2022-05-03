@@ -31,8 +31,14 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
         //get all rockets api
         app.get('/rockets', async (req, res) => {
-
+            const query = {};
+            const cursor = rocketCollection.find(query);
+            const rockets = await cursor.toArray();
+            res.send(rockets)
         })
+
+
+
     }
     finally {
 
