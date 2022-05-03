@@ -12,7 +12,7 @@ app.use(express.json());
 
 //connect with mongodb
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.l768r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -36,8 +36,21 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             const rockets = await cursor.toArray();
             res.send(rockets)
         })
+        //get one rocket api
+        app.get('/rockets/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const rocket = await rocketCollection.findOne(query);
 
+            res.send(rocket)
+        })
 
+        // post a data api
+        app.post('/rockets', async (req, res) => {
+            const newRockets = req.body;
+            const result = await rocketCollection.insertOne(newRockets);
+            res.send(result);
+        });
 
     }
     finally {
