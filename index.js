@@ -45,6 +45,14 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             res.send(rocket)
         })
 
+        //Post one rockets api
+        app.post('/rockets', async (req, res) => {
+            const newRockets = req.body;
+            const result = await rocketCollection.insertOne(newRockets);
+            res.send(result);
+        });
+
+
         // post a data api
         app.post('/rockets', async (req, res) => {
             const newRockets = req.body;
