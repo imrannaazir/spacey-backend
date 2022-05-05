@@ -62,10 +62,10 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
         //created put api 
         app.put('/rockets/:id', async (req, res) => {
-            const id = req.params.id;
             const updatedRocket = req.body;
+            const id = req.params.id;
+            console.log(updatedRocket);
             const query = { _id: ObjectId(id) };
-            console.log(query);
             const option = { upsert: true };
             const updatedDoc = {
                 $set: updatedRocket
