@@ -35,7 +35,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             const cursor = rocketCollection.find(query);
             const rockets = await cursor.toArray();
             res.send(rockets)
-        })
+        });
         //get one rocket api
         app.get('/rockets/:id', async (req, res) => {
             const id = req.params.id;
@@ -43,13 +43,37 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             const rocket = await rocketCollection.findOne(query);
 
             res.send(rocket)
-        })
+        });
 
         //Post one rockets api
         app.post('/rockets', async (req, res) => {
             const newRockets = req.body;
             const result = await rocketCollection.insertOne(newRockets);
             res.send(result);
+        });
+
+        //delete a rocket api
+        app.delete('/rockets/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const deleted = await rocketCollection.deleteOne(query);
+            res.send(deleted);
+        });
+
+        //created put api 
+        app.put('/rockets/:id', async (req, res) => {
+            const id = req.params
+            const updatedRocket = req.body;
+            const query = { _id: ObjectId(id) };
+            const option = { upsert: true };
+            const updatedDoc = {
+                $set: updatedRocket
+            };
+            console.log('updatedRocket', updatedDoc, 'query', query, 'option', option);
+            const result = await rocketCollection.updateOne(query, updatedDoc, option)
+            res.send(result)
+
+
         });
 
 
