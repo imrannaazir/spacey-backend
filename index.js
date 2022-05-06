@@ -31,10 +31,20 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
         //get all rockets api
         app.get('/rockets', async (req, res) => {
-            const query = {};
-            const cursor = rocketCollection.find(query);
-            const rockets = await cursor.toArray();
-            res.send(rockets)
+            const email = req?.query?.email;
+            if (email) {
+                const query = { email: email }
+                const cursor = rocketCollection.find(query)
+                const rockets = await cursor.toArray()
+                res.send(rockets)
+            }
+            else {
+                const query = {};
+                const cursor = rocketCollection.find(query);
+                const rockets = await cursor.toArray();
+                res.send(rockets)
+            }
+
         });
         //get one rocket api
         app.get('/rockets/:id', async (req, res) => {
