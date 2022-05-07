@@ -6,9 +6,13 @@ const cors = require('cors');
 require('dotenv').config()
 const jwt = require('jsonwebtoken');
 
+
+
 // use middle ware
 app.use(cors());
 app.use(express.json());
+
+
 
 // jwt function
 function verifyJWT(req, res, next) {
@@ -27,15 +31,17 @@ function verifyJWT(req, res, next) {
                 next()
             };
         });
-    }
-}
+    };
+};
+
+
 
 
 //connect with mongodb
-
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.l768r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
 
 
 //start async function
@@ -59,31 +65,52 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             else {
                 res.status(403).send({ message: 'access forbidden' })
             };
+        });
 
-        })
 
         //get all rockets api
         app.get('/rockets', async (req, res) => {
+            const page = parseInt(req.query.page);
+            const limit = parseInt(req.query.limit);
             const query = {};
             const cursor = rocketCollection.find(query);
-            const rockets = await cursor.toArray();
+            let rockets;
+            if (page || limit) {
+                console.log('page', page, 'limit', limit);
+                rockets = await cursor.skip(page * limit).limit(limit).toArray();
+            }
+            else {
+                rockets = await cursor.toArray();
+            }
             res.send(rockets)
         });
+
+
         //get one rocket api
         app.get('/rockets/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const rocket = await rocketCollection.findOne(query);
-
             res.send(rocket)
         });
+
+
+
+        //get all products count
+        app.get('/rocketsCount', async (req, res) => {
+            const count = await rocketCollection.estimatedDocumentCount();
+            res.send({ count })
+        })
+
+
 
         // get access token api 
         app.post('/login', async (req, res) => {
             const email = req.body;
             const accessToken = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
-            res.send({ accessToken })
-        })
+            res.send({ accessToken });
+        });
+
 
         //Post one rockets api
         app.post('/rockets', async (req, res) => {
@@ -92,6 +119,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             res.send(result);
         });
 
+
+
         //delete a rocket api
         app.delete('/rockets/:id', async (req, res) => {
             const id = req.params.id;
@@ -99,6 +128,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             const deleted = await rocketCollection.deleteOne(query);
             res.send(deleted);
         });
+
 
         //created put api 
         app.put('/rockets/:id', async (req, res) => {
@@ -111,17 +141,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             };
             const result = await rocketCollection.updateOne(query, updatedDoc, option)
             res.send(result)
-
-
         });
 
-
-        // post a data api
-        app.post('/rockets', async (req, res) => {
-            const newRockets = req.body;
-            const result = await rocketCollection.insertOne(newRockets);
-            res.send(result);
-        });
 
     }
     finally {
