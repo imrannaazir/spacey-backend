@@ -76,7 +76,6 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             const cursor = rocketCollection.find(query);
             let rockets;
             if (page || limit) {
-                console.log('page', page, 'limit', limit);
                 rockets = await cursor.skip(page * limit).limit(limit).toArray();
             }
             else {
