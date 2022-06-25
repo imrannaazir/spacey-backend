@@ -92,6 +92,13 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             const rocket = await rocketCollection.findOne(query);
             res.send(rocket)
         });
+        
+         //get one drone api
+        app.get('/drones', async (req, res) => {
+            const query = { category: "drone" };
+            const rocket = await rocketCollection.find(query).toArray();
+            res.send(rocket)
+        });
 
 
 
